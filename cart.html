@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart &#8212; Poshak Story</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .cart-step-bar{display:flex;align-items:center;justify-content:center;padding:28px 0 36px}
+    .cstep{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px}
+    .cstep-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:#e8ddd0;color:#8a7560;transition:all .3s}
+    .cstep-num.active{background:#c1121f;color:#fff}
+    .cstep-num.done{background:#c1121f;color:#fff}
+    .cstep-label{font-size:11px;letter-spacing:.5px;font-weight:400;color:var(--muted);text-transform:uppercase}
+    .cstep-label.active{font-weight:700;color:#c1121f}
+    .cstep-line{flex:1;height:2px;background:#e8ddd0;margin:0 6px 20px;transition:background .3s}
+    .cstep-line.done{background:#c1121f}
+    .step-panel{display:none}.step-panel.active{display:block}
+    .addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .addr-grid .full{grid-column:1/-1}
+    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+    .form-group input,.form-group select{width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fdf8f2;transition:border-color .2s;color:var(--dark)}
+    .form-group input:focus,.form-group select:focus{border-color:#c1121f}
+    .addr-type-row{display:flex;gap:10px;margin-top:18px}
+    .addr-type-btn{padding:8px 20px;border-radius:6px;font-size:13px;border:1.5px solid #e8ddd0;background:transparent;color:var(--char);transition:all .2s;font-family:inherit}
+    .addr-type-btn.sel{border-color:#c1121f;background:#fdf3f3;color:#c1121f;font-weight:600}
+    .pay-option{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:10px;border:2px solid #e8ddd0;background:#fff;text-align:left;width:100%;margin-bottom:12px;transition:all .2s;font-family:inherit}
+    .pay-option.sel{border-color:#c1121f;background:#fdf3f3}
+    .pay-radio{width:18px;height:18px;border-radius:50%;border:2px solid #e8ddd0;flex-shrink:0;transition:all .2s}
+    .pay-option.sel .pay-radio{border-color:#c1121f;background:#c1121f}
+    .pay-detail{flex:1}
+    .pay-detail strong{display:block;font-size:14px;font-weight:600;color:var(--dark)}
+    .pay-detail span{font-size:11.5px;color:var(--muted)}
+    .pay-input-box{background:#fdf8f2;border:1px solid #e8ddd0;border-radius:10px;padding:16px;margin-top:4px}
+    .pay-input-box.hidden{display:none}
+    .bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px}
+    .bank-btn{padding:10px;border-radius:8px;border:1.5px solid #e8ddd0;background:#fff;font-size:13px;font-family:inherit;transition:all .2s}
+    .bank-btn.sel{border-color:#c1121f;background:#fdf3f3;color:#c1121f;font-weight:600}
+    .order-success{text-align:center;padding:56px 40px;max-width:480px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+    .chk-btn-big{width:100%;background:#c1121f;color:#fff;border:none;padding:14px;border-radius:8px;font-size:13.5px;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--tr);margin-top:18px;font-family:inherit}
+    .chk-btn-big:hover{background:#8b0000;transform:translateY(-2px);box-shadow:0 8px 20px rgba(193,18,31,.3)}
+    .back-step{background:none;border:none;color:var(--muted);font-size:13px;padding:0;margin-bottom:6px;display:inline-flex;align-items:center;gap:5px;font-family:inherit;transition:color .2s}
+    .back-step:hover{color:#c1121f}
+    .mini-item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e8ddd0}
+    .mini-item:last-child{border-bottom:none}
+    .mini-img{width:44px;height:50px;border-radius:6px;object-fit:cover;background:#f7f0e8;flex-shrink:0}
+    .confirm-block{background:#fff;border-radius:var(--rad);box-shadow:var(--ss);padding:22px 24px;margin-bottom:16px}
+    .confirm-block-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+    .confirm-block-hdr h4{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:600;color:var(--dark)}
+    .edit-link{background:none;border:1px solid #c1121f;color:#c1121f;padding:4px 12px;border-radius:6px;font-size:12px;font-family:inherit;transition:all .2s}
+    .edit-link:hover{background:#c1121f;color:#fff}
+  </style>
+</head>
+<body>
+<div class="cursor"></div>
+<div class="cursor-follower"></div>
+
+<div class="announcement-bar"><span>&#10022; Free Shipping Above &#8377;2999 &nbsp;&nbsp;&#10022; Festive Edit 2025 &nbsp;&nbsp;&#10022; Flat 30% Off on Select Styles &nbsp;&nbsp;&#10022; Handcrafted with Love in India &nbsp;&nbsp;&#10022; Free Shipping Above &#8377;2999 &nbsp;&nbsp;&#10022; Flat 30% Off</span></div>
+
+<header class="topbar">
+  <a href="index.html" class="logo-area">
+    <img src="images/Red White Minimal Calligraphy Typography Fashion Store Logo.png" class="logo" alt="Poshak Story">
+    <span class="brand">Poshak <em>Story.</em></span>
+  </a>
+  <nav class="nav-links">
+    <div class="dropdown">
+      <a href="#">Women &#9662;</a>
+      <div class="dropdown-menu">
+        <a href="women-lehenga.html">&#9670;&nbsp; Lehenga</a>
+        <a href="women-saree.html">&#9670;&nbsp; Saree</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <a href="#">Men &#9662;</a>
+      <div class="dropdown-menu">
+        <a href="men-kurta.html">&#9670;&nbsp; Kurta</a>
+        <a href="men-suit.html">&#9670;&nbsp; Suit</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <a href="#">Kids &#9662;</a>
+      <div class="dropdown-menu">
+        <a href="kids-female.html">&#9670;&nbsp; Girls</a>
+        <a href="kids-male.html">&#9670;&nbsp; Boys</a>
+      </div>
+    </div>
+  </nav>
+  <div class="right-icons">
+    <div class="search-wrapper">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="Search styles..." class="search-box">
+    </div>
+    <a href="cart.html" class="icon-btn">&#128722;<span class="cart-count"></span></a>
+  </div>
+</header>
+
+<div class="page-header">
+  <span class="eyebrow">Shopping</span>
+  <h1 class="page-title">Your Cart</h1>
+  <div class="page-title-line"></div>
+</div>
+<a href="index.html" class="back-nav">&#8592; Continue Shopping</a>
+
+<section class="cart-section" id="cartSection"></section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="brand">Poshak <em>Story.</em></span>
+      <p>Celebrating the beauty of Indian ethnic fashion. Handcrafted with love, delivered with care across India.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">&#128247;</a>
+        <a href="#" class="social-btn">&#128077;</a>
+        <a href="#" class="social-btn">&#128204;</a>
+        <a href="#" class="social-btn">&#9654;</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Women's Wear</h4>
+      <a href="women-lehenga.html">Lehenga</a>
+      <a href="women-saree.html">Saree</a>
+      <a href="#">Kurtis</a>
+      <a href="#">Dupatta</a>
+    </div>
+    <div class="footer-col">
+      <h4>Men &amp; Kids</h4>
+      <a href="men-kurta.html">Men's Kurta</a>
+      <a href="men-suit.html">Men's Suit</a>
+      <a href="kids-female.html">Girls Ethnic</a>
+      <a href="kids-male.html">Boys Ethnic</a>
+    </div>
+    <div class="footer-col">
+      <h4>Help &amp; Info</h4>
+      <a href="#">Size Guide</a>
+      <a href="#">Shipping Policy</a>
+      <a href="#">Returns</a>
+      <a href="cart.html">Track Order</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&#169; 2025 Poshak Story. All rights reserved.</span>
+    <span><a href="index.html">Home</a> &nbsp;&#183;&nbsp; <a href="cart.html">Cart</a> &nbsp;&#183;&nbsp; <a href="#">Help</a></span>
+  </div>
+</footer>
+
+<div id="toast" class="toast"><span class="toast-icon">&#128717;</span><div><strong id="toast-msg"></strong></div></div>
+<button class="scroll-top" onclick="scrollToTop()">&#8593;</button>
+<script src="script.js"></script>
+<script>
+var cartState = {
+  step: 'cart',
+  addr: { name:'', phone:'', address:'', pincode:'', city:'', state:'', type:'Home' },
+  pay:  { method:'upi', upi:'', card:'', cardName:'', expiry:'', cvv:'', bank:'' },
+  discount: 0,
+  couponLabel: ''
+};
+
+function calcTotals(cart) {
+  var sub   = cart.reduce(function(s,i){ return s + Number(i.price); }, 0);
+  var ship  = sub >= 2999 ? 0 : 199;
+  var fest  = Math.round(sub * 0.05);
+  var cpn   = Math.round(sub * cartState.discount);
+  var cod   = cartState.pay.method === 'cod' ? 50 : 0;
+  return { sub: sub, ship: ship, fest: fest, cpn: cpn, cod: cod,
+           total: sub + ship - fest - cpn + cod };
+}
+
+function fmtINR(n) { return '&#8377;' + Number(n).toLocaleString('en-IN'); }
+
+function stepBar(cur) {
+  var steps = ['Cart','Address','Payment','Confirm'];
+  var idx   = steps.map(function(s){ return s.toLowerCase(); }).indexOf(cur);
+  var html  = '<div class="cart-step-bar">';
+  steps.forEach(function(s, i) {
+    var cls  = i < idx ? 'done' : (i === idx ? 'active' : '');
+    var lcls = i === idx ? 'active' : '';
+    var lbl  = i < idx ? '&#10003;' : (i + 1);
+    html += '<div class="cstep">';
+    html += '<div class="cstep-num ' + cls + '">' + lbl + '</div>';
+    html += '<div class="cstep-label ' + lcls + '">' + s + '</div>';
+    html += '</div>';
+    if (i < steps.length - 1) {
+      html += '<div class="cstep-line ' + (i < idx ? 'done' : '') + '"></div>';
+    }
+  });
+  return html + '</div>';
+}
+
+function summaryBox(cart, showCod) {
+  var t = calcTotals(cart);
+  var html = '<div class="cart-summary">';
+  html += '<h3>Order Summary</h3>';
+  html += '<div class="summary-row"><span>Subtotal (' + cart.length + ' item' + (cart.length>1?'s':'') + ')</span><span>' + fmtINR(t.sub) + '</span></div>';
+  html += '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'#2d2416') + '">' + (t.ship===0?'&#127881; Free':fmtINR(t.ship)) + '</span></div>';
+  html += '<div class="summary-row"><span>Festive Discount (5%)</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>';
+  if (cartState.discount > 0) html += '<div class="summary-row"><span>Coupon (' + Math.round(cartState.discount*100) + '%)</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>';
+  if (showCod && cartState.pay.method === 'cod') html += '<div class="summary-row"><span>COD Fee</span><span>' + fmtINR(50) + '</span></div>';
+  html += '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>';
+  if (t.ship > 0) html += '<div style="background:#fdf8f2;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a7560;text-align:center;margin-top:10px;">Add ' + fmtINR(2999 - t.sub) + ' more for free shipping!</div>';
+  html += '</div>';
+  return html;
+}
+
+function miniCartItems(cart) {
+  return cart.map(function(item) {
+    return '<div class="mini-item"><div class="mini-img" style="background:#f7f0e8;"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--dark)">' + item.name + '</div><div style="font-size:12px;color:var(--muted)">Size: ' + (item.size || 'M') + '</div></div><div style="font-size:13px;font-weight:600;color:#c1121f">' + fmtINR(item.price) + '</div></div>';
+  }).join('');
+}
+
+function renderCart() {
+  var cart = getCart();
+  var sec  = document.getElementById('cartSection');
+
+  if (cart.length === 0 && cartState.step === 'cart') {
+    sec.innerHTML = '<div class="empty-cart"><span class="empty-icon">&#128717;</span><h3>Your cart is empty</h3><p>Explore our beautiful collections and find something you love!</p><a href="index.html" style="display:inline-block;background:#c1121f;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Explore Collections</a></div>';
+    return;
+  }
+
+  if (cartState.step === 'cart')    { renderStepCart(cart, sec); }
+  else if (cartState.step === 'address')  { renderStepAddress(cart, sec); }
+  else if (cartState.step === 'payment')  { renderStepPayment(cart, sec); }
+  else if (cartState.step === 'confirm')  { renderStepConfirm(cart, sec); }
+}
+
+function renderStepCart(cart, sec) {
+  var t = calcTotals(cart);
+  var rows = cart.map(function(item, idx) {
+    return '<tr><td style="font-size:13px;color:var(--muted)">' + (idx+1) + '</td><td class="td-name">' + item.name + '</td><td class="td-price">' + fmtINR(item.price) + '</td><td><button class="remove-btn" onclick="removeItem(' + idx + ')">&#10005;</button></td></tr>';
+  }).join('');
+
+  var couponHtml = '<div style="margin-top:16px;background:#fff;border-radius:var(--rad);padding:20px;box-shadow:var(--ss)">'
+    + '<div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;margin-bottom:12px;color:var(--dark)">Apply Coupon</div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<input type="text" id="cpnInput" placeholder="e.g. FESTIVE30" style="flex:1;padding:10px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:#fdf8f2">'
+    + '<button onclick="applyCoupon()" style="background:#c1121f;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit">Apply</button>'
+    + '</div>'
+    + (cartState.couponLabel ? '<div style="font-size:13px;margin-top:7px;color:' + (cartState.discount?'#218838':'#c1121f') + ';font-weight:500">' + cartState.couponLabel + '</div>' : '')
+    + '<div style="font-size:11.5px;color:var(--muted);margin-top:5px">Try: FESTIVE30 &middot; SAVE20 &middot; POSHAK10</div>'
+    + '</div>';
+
+  var summary = '<div class="cart-summary"><h3>Order Summary</h3>'
+    + '<div class="summary-row"><span>Subtotal (' + cart.length + ' item' + (cart.length>1?'s':'') + ')</span><span>' + fmtINR(t.sub) + '</span></div>'
+    + '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'#2d2416') + '">' + (t.ship===0?'&#127881; Free':fmtINR(t.ship)) + '</span></div>'
+    + '<div class="summary-row"><span>Festive Discount (5%)</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>'
+    + (cartState.discount > 0 ? '<div class="summary-row"><span>Coupon (' + Math.round(cartState.discount*100) + '%)</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>' : '')
+    + '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>'
+    + (t.ship > 0 ? '<div style="background:#fdf8f2;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a7560;text-align:center;margin-top:10px;">Add ' + fmtINR(2999 - t.sub) + ' more for free shipping!</div>' : '')
+    + '<button class="chk-btn-big" onclick="goToStep('address')">Proceed to Address &#8594;</button>'
+    + '<div style="text-align:center;margin-top:14px;font-size:20px">&#128274; &#128737;&#65039; &#9989;</div>'
+    + '<div style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px">Secure and Encrypted Checkout</div>'
+    + '</div>';
+
+  sec.innerHTML = stepBar('cart')
+    + '<div class="cart-layout">'
+    + '<div><div class="cart-table-wrap"><table><thead><tr><th>#</th><th>Product</th><th>Price</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
+    + '<div style="padding:14px 18px;border-top:1px solid #e8ddd0"><button onclick="clearCart()" style="background:none;border:1px solid #e8ddd0;color:#8a7560;padding:8px 18px;border-radius:6px;font-size:12px;font-family:inherit" onmouseover="this.style.borderColor='#c1121f';this.style.color='#c1121f'" onmouseout="this.style.borderColor='#e8ddd0';this.style.color='#8a7560'">&#128465; Clear Cart</button></div>'
+    + '</div>' + couponHtml + '</div>'
+    + summary + '</div>';
+}
+
+function renderStepAddress(cart, sec) {
+  var a = cartState.addr;
+  var t = calcTotals(cart);
+
+  var form = '<div style="background:#fff;border-radius:var(--rad);padding:28px;box-shadow:var(--ss)">'
+    + '<h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--dark);margin-bottom:22px">Shipping Address</h3>'
+    + '<div class="addr-grid">'
+    + mkField('Full Name','addrName',a.name,'Your full name','','')
+    + mkField('Phone','addrPhone',a.phone,'10-digit mobile','','')
+    + mkField('Address','addrAddr',a.address,'House / Street / Area','','full')
+    + mkField('Pincode','addrPin',a.pincode,'6-digit pincode','','')
+    + mkField('City','addrCity',a.city,'City','','')
+    + mkField('State','addrState',a.state,'State','','')
+    + '</div>'
+    + '<div class="addr-type-row">'
+    + '<button class="addr-type-btn ' + (a.type==='Home'?'sel':'') + '" onclick="setAddrType('Home')">&#127968; Home</button>'
+    + '<button class="addr-type-btn ' + (a.type==='Work'?'sel':'') + '" onclick="setAddrType('Work')">&#127970; Work</button>'
+    + '<button class="addr-type-btn ' + (a.type==='Other'?'sel':'') + '" onclick="setAddrType('Other')">&#128205; Other</button>'
+    + '</div>'
+    + '<button class="chk-btn-big" style="margin-top:24px" onclick="submitAddress()">Proceed to Payment &#8594;</button>'
+    + '</div>';
+
+  var sidebar = '<div class="cart-summary"><h3>Items (' + cart.length + ')</h3>'
+    + miniCartItems(cart)
+    + '<div class="summary-row total" style="margin-top:14px"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div></div>';
+
+  sec.innerHTML = stepBar('address')
+    + '<button class="back-step" onclick="goToStep('cart')">&#8592; Back to Cart</button>'
+    + '<div class="cart-layout">' + form + sidebar + '</div>';
+}
+
+function mkField(label, id, val, ph, type, cls) {
+  return '<div class="form-group ' + cls + '">'
+    + '<label for="' + id + '">' + label + '</label>'
+    + '<input type="' + (type||'text') + '" id="' + id + '" value="' + val.replace(/"/g,'&quot;') + '" placeholder="' + ph + '">'
+    + '</div>';
+}
+
+function renderStepPayment(cart, sec) {
+  var p = cartState.pay;
+  var t = calcTotals(cart);
+
+  var methods = [
+    { id:'upi',        label:'UPI / Google Pay / PhonePe', note:'Instant confirmation, 0% fees', noteColor:'#218838' },
+    { id:'card',       label:'Credit / Debit Card',        note:'Visa, Mastercard, Rupay, Amex', noteColor:'var(--muted)' },
+    { id:'netbanking', label:'Net Banking',                 note:'All major banks supported',     noteColor:'var(--muted)' },
+    { id:'cod',        label:'Cash on Delivery',            note:'Extra &#8377;50 COD fee applies', noteColor:'var(--muted)' }
+  ];
+
+  var optionsHtml = methods.map(function(m) {
+    var sel = p.method === m.id;
+    return '<button class="pay-option ' + (sel?'sel':'') + '" onclick="setPayMethod('' + m.id + '')">'
+      + '<div class="pay-radio"></div>'
+      + '<div class="pay-detail"><strong>' + m.label + '</strong><span style="color:' + m.noteColor + '">' + m.note + '</span></div>'
+      + '</button>';
+  }).join('');
+
+  var inputArea = '';
+  if (p.method === 'upi') {
+    inputArea = '<div class="pay-input-box"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">UPI ID</label><input type="text" id="upiId" value="' + p.upi + '" placeholder="yourname@upi" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"><div style="font-size:11.5px;color:var(--muted);margin-top:5px">e.g. name@okicici / name@ybl / name@paytm</div></div>';
+  } else if (p.method === 'card') {
+    inputArea = '<div class="pay-input-box"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
+      + '<div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Card Number</label><input type="text" id="cardNum" maxlength="19" value="' + p.card + '" placeholder="1234 5678 9012 3456" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff;letter-spacing:2px"></div>'
+      + '<div style="grid-column:1/-1"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Name on Card</label><input type="text" id="cardName" value="' + p.cardName + '" placeholder="Full name" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"></div>'
+      + '<div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Expiry (MM/YY)</label><input type="text" id="cardExp" maxlength="5" value="' + p.expiry + '" placeholder="MM/YY" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"></div>'
+      + '<div><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">CVV</label><input type="password" id="cardCvv" maxlength="4" value="' + p.cvv + '" placeholder="***" style="width:100%;padding:11px 14px;border:1.5px solid #e8ddd0;border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;background:#fff"></div>'
+      + '</div></div>';
+  } else if (p.method === 'netbanking') {
+    var banks = ['SBI','HDFC','ICICI','Axis','Kotak','PNB','Other'];
+    inputArea = '<div class="pay-input-box"><label style="display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Select Bank</label><div class="bank-grid">' + banks.map(function(b){ return '<button class="bank-btn ' + (p.bank===b?'sel':'') + '" onclick="setBank('' + b + '')">' + b + '</button>'; }).join('') + '</div></div>';
+  } else if (p.method === 'cod') {
+    inputArea = '<div class="pay-input-box" style="font-size:13.5px;color:var(--char);line-height:1.8">Pay &#8377;50 extra as COD handling fee at delivery. Available for orders up to &#8377;10,000.</div>';
+  }
+
+  var sidebar = '<div class="cart-summary"><h3>Order Total</h3>'
+    + '<div class="summary-row"><span>Items (' + cart.length + ')</span><span>' + fmtINR(t.sub) + '</span></div>'
+    + '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'#2d2416') + '">' + (t.ship===0?'Free':fmtINR(t.ship)) + '</span></div>'
+    + '<div class="summary-row"><span>Festive Discount</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>'
+    + (p.method==='cod'?'<div class="summary-row"><span>COD Fee</span><span>&#8377;50</span></div>':'')
+    + '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>'
+    + '<div style="background:#fdf8f2;border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--muted);line-height:1.7">Delivering to: ' + (cartState.addr.name||'Your name') + ', ' + (cartState.addr.city||'City') + '</div>'
+    + '<button class="chk-btn-big" onclick="submitPayment()">Review Order &#8594;</button>'
+    + '<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)">256-bit SSL Encrypted</div></div>';
+
+  sec.innerHTML = stepBar('payment')
+    + '<button class="back-step" onclick="goToStep('address')">&#8592; Back to Address</button>'
+    + '<div class="cart-layout"><div style="background:#fff;border-radius:var(--rad);padding:28px;box-shadow:var(--ss)">'
+    + '<h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--dark);margin-bottom:22px">Choose Payment Method</h3>'
+    + optionsHtml + inputArea + '</div>' + sidebar + '</div>';
+}
+
+function renderStepConfirm(cart, sec) {
+  var a = cartState.addr;
+  var p = cartState.pay;
+  var t = calcTotals(cart);
+
+  var itemsHtml = cart.map(function(item, i) {
+    return '<div style="display:flex;gap:12px;align-items:center;padding:10px 0;' + (i<cart.length-1?'border-bottom:1px solid #e8ddd0':'') + '">'
+      + '<div style="width:50px;height:58px;border-radius:8px;background:#f7f0e8;flex-shrink:0"></div>'
+      + '<div style="flex:1"><div style="font-weight:600;font-size:14px;color:var(--dark)">' + item.name + '</div><div style="font-size:12px;color:var(--muted)">Size: ' + (item.size||'M') + '</div></div>'
+      + '<div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:#c1121f">' + fmtINR(item.price) + '</div></div>';
+  }).join('');
+
+  var payLabel = p.method==='upi' ? 'UPI: ' + (p.upi||'Not entered')
+    : p.method==='card' ? 'Card ending ****' + (p.card.replace(/ /g,'').slice(-4)||'----')
+    : p.method==='netbanking' ? 'Net Banking: ' + (p.bank||'Not selected')
+    : 'Cash on Delivery (&#8377;50 COD fee)';
+
+  var left = '<div class="confirm-block"><div class="confirm-block-hdr"><h4>Order Items</h4></div>' + itemsHtml + '</div>'
+    + '<div class="confirm-block"><div class="confirm-block-hdr"><h4>Delivery Address</h4><button class="edit-link" onclick="goToStep('address')">Edit</button></div>'
+    + '<div style="font-size:14px;color:var(--char);line-height:2"><strong>' + a.name + '</strong><br>' + a.address + '<br>' + a.city + ', ' + a.state + ' &#8722; ' + a.pincode + '<br>Ph: ' + a.phone + '</div></div>'
+    + '<div class="confirm-block"><div class="confirm-block-hdr"><h4>Payment</h4><button class="edit-link" onclick="goToStep('payment')">Edit</button></div>'
+    + '<div style="font-size:14px;color:var(--char)">' + payLabel + '</div></div>';
+
+  var bill = '<div class="cart-summary"><h3>Final Bill</h3>'
+    + '<div class="summary-row"><span>Subtotal</span><span>' + fmtINR(t.sub) + '</span></div>'
+    + '<div class="summary-row"><span>Shipping</span><span style="color:' + (t.ship===0?'#218838':'') + '">' + (t.ship===0?'Free':fmtINR(t.ship)) + '</span></div>'
+    + '<div class="summary-row"><span>Festive Discount</span><span style="color:#218838">&#8722;' + fmtINR(t.fest) + '</span></div>'
+    + (cartState.discount > 0 ? '<div class="summary-row"><span>Coupon</span><span style="color:#218838">&#8722;' + fmtINR(t.cpn) + '</span></div>' : '')
+    + (p.method==='cod' ? '<div class="summary-row"><span>COD Fee</span><span>&#8377;50</span></div>' : '')
+    + '<div class="summary-row total"><span>Total</span><span style="color:#c1121f">' + fmtINR(t.total) + '</span></div>'
+    + '<button class="chk-btn-big" style="background:linear-gradient(135deg,#c1121f,#8b0000)" onclick="placeOrder(' + t.total + ')">&#127881; Place Order</button>'
+    + '<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)">Protected by Poshak Story guarantee</div></div>';
+
+  sec.innerHTML = stepBar('confirm')
+    + '<button class="back-step" onclick="goToStep('payment')">&#8592; Back to Payment</button>'
+    + '<div class="cart-layout">' + left + bill + '</div>';
+}
+
+function goToStep(step) {
+  cartState.step = step;
+  renderCart();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function removeItem(idx) {
+  var cart = getCart();
+  var removed = cart.splice(idx, 1)[0];
+  saveCart(cart);
+  showToast(removed.name + ' removed');
+  renderCart();
+}
+
+function clearCart() {
+  if (confirm('Clear all items?')) { saveCart([]); renderCart(); }
+}
+
+function applyCoupon() {
+  var code = document.getElementById('cpnInput').value.toUpperCase();
+  var codes = { FESTIVE30: 0.30, SAVE20: 0.20, POSHAK10: 0.10 };
+  if (codes[code]) {
+    cartState.discount = codes[code];
+    cartState.couponLabel = Math.round(codes[code]*100) + '% OFF Applied!';
+  } else {
+    cartState.couponLabel = 'Invalid code. Try: FESTIVE30';
+  }
+  renderCart();
+}
+
+function setAddrType(t) { cartState.addr.type = t; renderCart(); }
+function setPayMethod(m) { cartState.pay.method = m; renderCart(); }
+function setBank(b) { cartState.pay.bank = b; renderCart(); }
+
+function submitAddress() {
+  var fields = ['addrName','addrPhone','addrAddr','addrPin','addrCity','addrState'];
+  var keys   = ['name','phone','address','pincode','city','state'];
+  var ok = true;
+  fields.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    cartState.addr[keys[i]] = el.value.trim();
+    if (!el.value.trim()) { el.style.borderColor = '#c1121f'; ok = false; }
+    else { el.style.borderColor = '#e8ddd0'; }
+  });
+  if (!ok) { showToast('Please fill all required fields'); return; }
+  goToStep('payment');
+}
+
+function submitPayment() {
+  var p = cartState.pay;
+  if (p.method === 'upi') {
+    var el = document.getElementById('upiId');
+    if (el) cartState.pay.upi = el.value.trim();
+  } else if (p.method === 'card') {
+    var cn = document.getElementById('cardNum');
+    var nm = document.getElementById('cardName');
+    var ex = document.getElementById('cardExp');
+    var cv = document.getElementById('cardCvv');
+    if (cn) cartState.pay.card = cn.value.trim();
+    if (nm) cartState.pay.cardName = nm.value.trim();
+    if (ex) cartState.pay.expiry = ex.value.trim();
+    if (cv) cartState.pay.cvv = cv.value.trim();
+  }
+  goToStep('confirm');
+}
+
+function placeOrder(total) {
+  var cart = getCart();
+  var orderId = 'PS' + String(Date.now()).slice(-8);
+  var a = cartState.addr;
+
+  document.getElementById('cartSection').innerHTML =
+    '<div style="padding:56px 20px"><div class="order-success">'
+    + '<div style="font-size:64px;margin-bottom:16px">&#127881;</div>'
+    + '<h2 style="font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--dark);margin-bottom:8px">Order Placed!</h2>'
+    + '<div style="background:#fdf8f2;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--muted)">Order ID: <strong style="color:var(--dark)">' + orderId + '</strong></div>'
+    + '<p style="color:var(--muted);font-size:13.5px;line-height:1.8;margin-bottom:10px">Thank you for shopping with Poshak Story.<br>Expected delivery: 5&#8722;7 business days.</p>'
+    + '<div style="background:#fdf3f3;border-radius:10px;padding:14px 16px;margin:14px 0;font-size:13px;text-align:left;line-height:2">'
+    + '<div>Delivering to: ' + a.name + ', ' + a.city + ' ' + a.pincode + '</div>'
+    + '<div>Total paid: ' + fmtINR(total) + '</div></div>'
+    + '<button onclick="window.location.href='index.html'" style="width:100%;background:#c1121f;color:#fff;border:none;padding:13px;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:inherit">Continue Shopping</button>'
+    + '</div></div>';
+
+  saveCart([]);
+  updateCartCount();
+}
+
+renderCart();
+</script>
+</body>
+</html>
